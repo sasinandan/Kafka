@@ -6,7 +6,7 @@ participant "GPU" as GPU
 participant "IPS" as IPS
 participant "FISERV" as FISERV
 participant "EWS_CRUD" as EWS_CRUD
-participant "EventHUB" as EventHUB
+queue "GPU Event Kafka Topic" as EventHUB #FFD8A8
 
 participant "RH Microservices" as RH_Microservices #F3A3A3
 participant "PEGA" as PEGA #C7B4DE
