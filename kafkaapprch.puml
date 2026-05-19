@@ -1,0 +1,40 @@
+@startuml
+
+title GPU Event Processing at Riskhub (Kafka Integration)
+
+participant "GPU" as GPU
+participant "IPS" as IPS
+participant "FISERV" as FISERV
+participant "EWS_CRUD" as EWS_CRUD
+queue "GPU EVENT Kafka Topic" as EventHUB #FFD8A8
+
+participant "RH Microservices" as RH_Microservices #F3A3A3
+database "MS Eventinfo Table" as MS_Eventinfo #LightBlue
+queue "Riskhub Event Kafka Topic" as Kafka_Topic #FFD8A8
+participant "PEGA" as PEGA #C7B4DE
+
+participant "Oracle & Mongo CRUD" as Oracle_Mongo_CRUD
+participant "Dedup Logic" as Dedup_Logic
+participant "Strategy" as Strategy
+participant "postStrategy" as postStrategy
+
+GPU -> IPS : Send THD CRC/PROX Fusion Payment Info
+IPS -> GPU : send Enriched Payment Info
+IPS -> FISERV : send OTB release request
+GPU -> EWS_CRUD : Get EWS information
+GPU -> EventHUB : publish CRC/PROX consolidated payment & EWS information as Event
+EventHUB -> RH_Microservices : Pickup/Consume Event posted by GPU
+
+RH_Microservices -> MS_Eventinfo : Insert Event Info
+RH_Microservices -> Kafka_Topic : Publish Event Data (Produce)
+
+Kafka_Topic -> PEGA : Poll & Consume Event Data
+
+PEGA -> PEGA : Data Translation & Standardization
+PEGA -> Dedup_Logic : Execute Deduplication Logic
+PEGA -> Oracle_Mongo_CRUD : Collect & Format required Data based on Dedup result
+
+PEGA -> Strategy : Execute Strategy
+PEGA -> postStrategy : Execute postStrategy steps
+
+@enduml
