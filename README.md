@@ -1,2 +1,0 @@
-# Kafka
-kafka projects
